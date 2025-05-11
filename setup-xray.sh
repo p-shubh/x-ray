@@ -47,16 +47,30 @@ services:
       - ./config.json:/etc/xray/config.json
 EOF
 
-echo "[*] Starting the container..."
+echo "[*] Checking for Docker Compose..."
 
-# Detect whether 'docker-compose' or 'docker compose' is available
 if command -v docker-compose &> /dev/null; then
+    echo "[✓] docker-compose found. Starting the container..."
     docker-compose up -d
 elif docker compose version &> /dev/null; then
+    echo "[✓] docker compose found. Starting the container..."
     docker compose up -d
 else
-    echo "❌ Error: Neither 'docker-compose' nor 'docker compose' was found. Please install Docker Compose."
-    exit 1
+    echo "[!] Docker Compose not found. Installing docker-compose v1..."
+
+    # Install Docker Compose v1 (for Linux x86_64)
+    sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" \
+        -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+
+    # Verify installation
+    if command -v docker-compose &> /dev/null; then
+        echo "[✓] docker-compose installed successfully. Starting the container..."
+        docker-compose up -d
+    else
+        echo "❌ Failed to install docker-compose. Please install it manually."
+        exit 1
+    fi
 fi
 
 echo "[✓] Xray SOCKS proxy is up and running on port 1080."
