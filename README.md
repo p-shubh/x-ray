@@ -1,7 +1,3 @@
-Sure! Here's the updated `README.md` with a clear suggestion that **Docker and Docker Compose should be pre-installed** before running the script:
-
----
-
 ````markdown
 # 🛰 Xray Proxy Setup
 
