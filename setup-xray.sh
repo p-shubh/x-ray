@@ -1,10 +1,12 @@
 #!/bin/bash
 
-# Step 1: Create the xray-proxy folder and navigate into it
-mkdir -p xray-proxy
-cd xray-proxy || exit
+set -e
 
-# Step 2: Create the config.json file with the given content
+echo "[*] Creating xray-proxy directory..."
+mkdir -p xray-proxy
+cd xray-proxy
+
+echo "[*] Creating config.json..."
 cat <<EOF > config.json
 {
   "log": {
@@ -30,7 +32,7 @@ cat <<EOF > config.json
 }
 EOF
 
-# Step 3: Create the docker-compose.yml file with the given content
+echo "[*] Creating docker-compose.yml..."
 cat <<EOF > docker-compose.yml
 version: "3.8"
 
@@ -45,5 +47,16 @@ services:
       - ./config.json:/etc/xray/config.json
 EOF
 
-# Step 4: Run the container
-docker-compose up -d
+echo "[*] Starting the container..."
+
+# Detect whether 'docker-compose' or 'docker compose' is available
+if command -v docker-compose &> /dev/null; then
+    docker-compose up -d
+elif docker compose version &> /dev/null; then
+    docker compose up -d
+else
+    echo "❌ Error: Neither 'docker-compose' nor 'docker compose' was found. Please install Docker Compose."
+    exit 1
+fi
+
+echo "[✓] Xray SOCKS proxy is up and running on port 1080."
